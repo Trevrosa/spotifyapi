@@ -1,4 +1,4 @@
-package main
+package spotify
 
 import (
 	"encoding/json"
@@ -6,30 +6,31 @@ import (
 	"io"
 	"net/http"
 	"net/url"
-
-	"github.com/joho/godotenv"
+	"os"
 )
 
-type TokenResponse struct {
+// the response given by the api containing the access token
+type AccessTokenResponse struct {
 	AccessToken string `json:"access_token"`
 	TokenType   string `json:"token_type"`
-	ExpiresIn   int `json:"expires_in"`
+	ExpiresIn   int    `json:"expires_in"`
+}
+
+// return the access token as a [http.Header]. 
+func (resp *AccessTokenResponse) Header() http.Header {
+	value := resp.TokenType + " " + resp.AccessToken
+	return http.Header{"Authorization": []string{value}}
 }
 
 // valid for 1 hour
-func getAccessToken(client *http.Client) (tokenResponse *TokenResponse, err error) {
+func GetAccessToken(client *http.Client) (*AccessTokenResponse, error) {
 	const API_URL = "https://accounts.spotify.com/api/token"
 
-	env, err := godotenv.Read()
-	if err != nil {
-		return nil, err
-	}
-
-	clientId, ok := env["CLIENT_ID"]
+	clientId, ok := os.LookupEnv("CLIENT_ID")
 	if !ok {
 		return nil, errors.New("no CLIENT_ID environment variable")
 	}
-	clientSecret, ok := env["CLIENT_SECRET"]
+	clientSecret, ok := os.LookupEnv("CLIENT_SECRET")
 	if !ok {
 		return nil, errors.New("no CLIENT_SECRET environment variable")
 	}
@@ -53,8 +54,7 @@ func getAccessToken(client *http.Client) (tokenResponse *TokenResponse, err erro
 		return nil, errors.New("request error " + resp.Status + ": " + string(body))
 	}
 
-
-	token := TokenResponse{}
+	token := AccessTokenResponse{}
 	if err := json.Unmarshal(body, &token); err != nil {
 		return nil, err
 	}
