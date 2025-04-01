@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"net/http"
 	"trev/spot/v2/spotify"
-	"trev/spot/v2/spotify/artists"
+	"trev/spot/v2/spotify/artist"
 
 	"github.com/davecgh/go-spew/spew"
 	"github.com/joho/godotenv"

@@ -7,9 +7,39 @@ import (
 	"net/http"
 )
 
+type Restrictions struct {
+	Reason string `json:"reason,omitempty"`
+}
+
+type ExternalIDs struct {
+	ISRC string `json:"isrc,omitempty"` // International Standard Recording Code
+	EAN  string `json:"ean,omitempty"`  // International Article Number
+	UPC  string `json:"upc,omitempty"`  // Universal Product Code
+}
+
+type ExternalURLs struct {
+	Spotify string `json:"spotify,omitempty"`
+}
+
+type Image struct {
+	Url    string `json:"url"`
+	Height int    `json:"height"`
+	Width  int    `json:"width"`
+}
+
+type PaginatedObject[T any] struct {
+	Href     string `json:"href"`
+	Limit    int    `json:"limit"`
+	Next     string `json:"next"`
+	Offset   int    `json:"offset"`
+	Previous string `json:"previous"`
+	Total    int    `json:"total"`
+	Items    []T    `json:"items"`
+}
+
 type SpotifyType interface {
-	json.Marshaler
-	SpotifyType()
+	// the name of the type
+	SpotifyType() string
 }
 
 type SpotifyError struct {
